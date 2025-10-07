@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Consultar DNI (HTTP)</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f6f8fa;
+      padding: 40px;
+    }
+    h2 { color: #333; }
+    input, button {
+      padding: 10px;
+      font-size: 16px;
+      margin-top: 10px;
+    }
+    button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover { background-color: #0056b3; }
+    #resultado {
+      margin-top: 20px;
+      font-size: 16px;
+      color: #222;
+    }
+  </style>
+</head>
+<body>
+  <h2>Consulta de DNI (API Decolecta - HTTP)</h2>
+
+  <input type="text" id="dni" placeholder="Ingrese DNI (8 dígitos)" maxlength="8">
+  <button id="consultar">Consultar</button>
+
+  <div id="resultado"></div>
+
+  <script>
+    document.getElementById('consultar').addEventListener('click', async () => {
+      const dni = document.getElementById('dni').value.trim();
+      const resultado = document.getElementById('resultado');
+      resultado.textContent = 'Consultando...';
+
+      if (!/^\d{8}$/.test(dni)) {
+        resultado.textContent = '⚠️ Ingrese un DNI válido de 8 dígitos';
+        return;
+      }
+
+      try {
+        const res = await fetch(`consulta.php?dni=${dni}`);
+        const data = await res.json();
+
+        if (data.success) {
+          resultado.textContent = `✅ Nombre: ${data.nombre_completo}`;
+        } else {
+          resultado.textContent = `❌ ${data.message}`;
+        }
+      } catch (error) {
+        resultado.textContent = '⚠️ Error al conectar con el servidor';
+        console.error(error);
+      }
+    });
+  </script>
+</body>
+</html>

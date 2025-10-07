@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Consultar DNI (HTTP)</title>
+  <title>Consultar DNI (API Decolecta - HTTP)</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -49,17 +49,27 @@
         return;
       }
 
+      const token = "sk_9338.PjzSpGbM9neFKOnuoNEKrbQnhMZPhH6b"; // ⚠️ Exponer token públicamente no es seguro
+      const url = `http://api.decolecta.com/v1/reniec/dni?numero=${dni}`;
+
       try {
-        const res = await fetch(`consulta.php?dni=${dni}`);
+        const res = await fetch(url, {
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "User-Agent": "decolecta-client"
+          }
+        });
+
         const data = await res.json();
 
-        if (data.success) {
-          resultado.textContent = `✅ Nombre: ${data.nombre_completo}`;
+        if (data.first_name) {
+          const nombreCompleto = `${data.first_last_name} ${data.second_last_name} ${data.first_name}`.trim();
+          resultado.textContent = `✅ Nombre: ${nombreCompleto}`;
         } else {
-          resultado.textContent = `❌ ${data.message}`;
+          resultado.textContent = `❌ DNI no encontrado o inválido`;
         }
       } catch (error) {
-        resultado.textContent = '⚠️ Error al conectar con el servidor';
+        resultado.textContent = '⚠️ Error al conectar con la API';
         console.error(error);
       }
     });
